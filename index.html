@@ -624,16 +624,16 @@ if (!location.hash.slice(1)) setTimeout(()=>{
   requestAnimationFrame(()=>{ if (!animating && !location.hash.slice(1)) Object.values(views).forEach(v=>v.hidden=true); });
 }, 700);
 
-/* resposta: o baralho é lançado para cima, abre no alto e as cartas caem devagar */
-const BURST_MS = 3200;
+/* resposta: o baralho sobe rápido, explode espalhando as cartas pela tela e elas caem */
+const BURST_MS = 2800;
 function burst(x,y){
-  const n = mobile ? 14 : 28, half = mobile ? 35 : 46;
-  const apexX = x + rnd(-20,20), apexY = Math.max(innerHeight*0.2, 80);
-  const spread = mobile ? [60,170] : [90,280];
+  const n = mobile ? 16 : 24, half = mobile ? 35 : 46;
+  const W = innerWidth, H = innerHeight;
+  const apexX = x + rnd(-15,15), apexY = Math.max(y - rnd(150,210), H*0.18);
   const flash = document.createElement("div"); flash.className="flash";
   flash.style.setProperty("--fx", apexX+"px"); flash.style.setProperty("--fy", apexY+"px");
   document.body.appendChild(flash);
-  flash.animate([{opacity:0},{opacity:1,offset:.2},{opacity:0}],{duration:1300,delay:BURST_MS*.26,easing:"ease-out",fill:"both"}).onfinish=()=>flash.remove();
+  flash.animate([{opacity:0},{opacity:1,offset:.2},{opacity:0}],{duration:1000,delay:BURST_MS*.11,easing:"ease-out",fill:"both"}).onfinish=()=>flash.remove();
   const frag = document.createDocumentFragment(), items = [];
   for(let i=0;i<n;i++){
     const w = document.createElement("div"); w.className="burst";
@@ -642,24 +642,25 @@ function burst(x,y){
   }
   document.body.appendChild(frag);
   items.forEach((w,i)=>{
-    const sx = x-half, sy = y-half*1.4;                       /* saída: o botão */
-    const tx = apexX-half + (i-n/2)*0.4, ty = apexY-half*1.4 - i*0.5; /* topo: o baralho ainda junto */
-    const ang = (i/n)*Math.PI*2 + rnd(-.25,.25), d = rnd(...spread);
-    const ex = tx + Math.cos(ang)*d, ey = ty + Math.sin(ang)*d*0.75; /* abre em leque */
-    const fx = ex + rnd(-90,90), fy = innerHeight + 160;       /* cai até sair da tela */
-    const tilt = rnd(-6,6), r1 = rnd(-70,70), r2 = r1 + rnd(-160,160);
+    const sx = x-half, sy = y-half*1.4;
+    const tx = apexX-half, ty = apexY-half*1.4;
+    /* ângulos distribuídos em volta, com mais cartas indo para cima e para os lados */
+    const ang = -Math.PI/2 + ((i/n)*2-1)*Math.PI*0.95 + rnd(-.2,.2);
+    const d = rnd(.4,1);
+    const ex = tx + Math.cos(ang)*d*W*(mobile?.62:.5), ey = ty + Math.sin(ang)*d*H*(mobile?.34:.42);
+    const fx = ex + rnd(-80,80), fy = H + 160;
+    const r1 = rnd(-200,200), r2 = r1 + rnd(-200,200);
     w.animate([
-      {offset:0,   transform:`translate3d(${sx}px,${sy}px,0) rotate(0deg) scale(.55)`, opacity:1, easing:"cubic-bezier(.22,.9,.3,1)"},
-      {offset:.26, transform:`translate3d(${tx}px,${ty}px,0) rotate(${tilt}deg) scale(1)`, opacity:1, easing:"cubic-bezier(.16,.75,.3,1)"},
-      {offset:.48, transform:`translate3d(${ex}px,${ey}px,0) rotate(${r1}deg) scale(1)`, opacity:1, easing:"cubic-bezier(.42,0,.72,.55)"},
-      {offset:.85, transform:`translate3d(${(ex+fx)/2}px,${ey+(fy-ey)*0.62}px,0) rotate(${(r1+r2)/2}deg) scale(.95)`, opacity:.9, easing:"linear"},
+      {offset:0,   transform:`translate3d(${sx}px,${sy}px,0) rotate(0deg) scale(.5)`, opacity:1, easing:"cubic-bezier(.25,.9,.35,1)"},
+      {offset:.11, transform:`translate3d(${tx}px,${ty}px,0) rotate(${rnd(-8,8)}deg) scale(.85)`, opacity:1, easing:"cubic-bezier(.1,.8,.25,1)"},
+      {offset:.46, transform:`translate3d(${ex}px,${ey}px,0) rotate(${r1}deg) scale(1)`, opacity:1, easing:"cubic-bezier(.45,0,.8,.55)"},
+      {offset:.86, transform:`translate3d(${(ex+fx)/2}px,${ey+(fy-ey)*0.6}px,0) rotate(${(r1+r2)/2}deg) scale(.95)`, opacity:.9, easing:"linear"},
       {offset:1,   transform:`translate3d(${fx}px,${fy}px,0) rotate(${r2}deg) scale(.9)`, opacity:0}
-    ],{duration:BURST_MS + rnd(-150,250), fill:"forwards"}).onfinish=()=>w.remove();
-    /* sobe com o verso para cima e começa a virar quando o leque abre */
+    ],{duration:BURST_MS + rnd(-200,250), fill:"forwards"}).onfinish=()=>w.remove();
     w.querySelector(".pc-in").animate([
       {offset:0,   transform:"rotateY(180deg)"},
-      {offset:.3,  transform:"rotateY(180deg)", easing:"ease-in-out"},
-      {offset:1,   transform:`rotateY(${180 + (Math.random()<.5?-1:1)*rnd(360,720)}deg)`}
+      {offset:.1,  transform:"rotateY(180deg)", easing:"ease-out"},
+      {offset:1,   transform:`rotateY(${180 + (Math.random()<.5?-1:1)*rnd(360,900)}deg)`}
     ],{duration:BURST_MS, fill:"forwards"});
   });
 }
@@ -678,8 +679,8 @@ document.querySelectorAll("[data-choose]").forEach(b=>b.addEventListener("click"
     if (!animating || location.hash.slice(1) !== target) return;
     burst(x,y);
     intro.classList.add("leaving");
-    later(()=>intro.classList.add("gone"), 950);
-    later(()=>{ intro.hidden = true; intro.classList.remove("leaving","gone"); animating = false; animTimers = []; rain.classList.remove("off"); }, 2450);
+    later(()=>intro.classList.add("gone"), 550);
+    later(()=>{ intro.hidden = true; intro.classList.remove("leaving","gone"); animating = false; animTimers = []; rain.classList.remove("off"); }, 1950);
   }));
 }));
 
