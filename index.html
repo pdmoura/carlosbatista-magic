@@ -87,14 +87,17 @@ p{margin:0}
 .choice b{font:500 clamp(1.45rem,2.6vw,1.9rem)/1.1 var(--display);letter-spacing:-.02em}
 .choice span{font-size:1rem;color:var(--muted)}
 .intro.leaving .intro-in{opacity:0;filter:blur(12px);transform:scale(.96)}
+@media (max-width:700px){.intro.leaving .intro-in{filter:none}}
 .intro.gone{opacity:0;pointer-events:none}
 @media (max-width:640px){.choices{grid-template-columns:1fr}.intro-in{gap:30px}.choice{padding:24px 22px}}
 
 /* explosão de cartas ao responder */
-.burst{position:fixed;z-index:101;left:0;top:0;pointer-events:none}
+.burst{position:fixed;z-index:101;left:0;top:0;pointer-events:none;will-change:transform,opacity;contain:layout paint}
 .burst .pc{--w:92px}
-.flash{position:fixed;z-index:101;width:20px;height:20px;margin:-10px 0 0 -10px;border-radius:50%;pointer-events:none;
-  background:radial-gradient(circle,rgba(255,244,214,.9),rgba(210,177,108,.35) 40%,transparent 70%)}
+.burst .pc-face{box-shadow:0 8px 16px -8px rgba(0,0,0,.6)}
+.flash{position:fixed;inset:0;z-index:101;pointer-events:none;opacity:0;will-change:opacity;
+  background:radial-gradient(circle at var(--fx) var(--fy),rgba(255,244,214,.5),rgba(210,177,108,.16) 16%,transparent 42%)}
+@media (max-width:700px){.burst .pc{--w:70px}.burst .pc-face{box-shadow:none}}
 
 /* header */
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--ink)}
@@ -121,6 +124,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 /* cartas caindo pelo site todo, perdendo cor e nitidez até sumir no preto */
 .rain{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;transition:opacity 1.2s ease}
 .rain.off{opacity:0}
+.rain.off .pc,.rain.off .pc-in{animation-play-state:paused}
 main,footer{position:relative;z-index:1}
 .rain .pc{position:absolute;top:-320px;left:var(--x);--w:var(--cw);will-change:transform,opacity,filter;animation:fall var(--d) linear var(--delay) infinite}
 .rain .pc .pc-in{animation:spin var(--d) linear var(--delay) infinite}
@@ -128,6 +132,11 @@ main,footer{position:relative;z-index:1}
   0%{transform:translate3d(0,0,0) rotate(var(--r0));opacity:var(--o);filter:blur(var(--b)) saturate(1) brightness(.9)}
   55%{opacity:calc(var(--o)*.55);filter:blur(calc(var(--b) + 3px)) saturate(.35) brightness(.6)}
   100%{transform:translate3d(var(--dx),calc(100vh + 360px),0) rotate(var(--r1));opacity:0;filter:blur(calc(var(--b) + 8px)) saturate(0) brightness(.3)}}
+/* celular: só transform e opacidade animam; o filtro fica fixo */
+@media (max-width:700px){.rain .pc{animation-name:fall-lite;filter:blur(var(--b)) brightness(.7);will-change:transform,opacity}}
+@keyframes fall-lite{
+  0%{transform:translate3d(0,0,0) rotate(var(--r0));opacity:var(--o)}
+  100%{transform:translate3d(var(--dx),calc(100vh + 360px),0) rotate(var(--r1));opacity:0}}
 @keyframes spin{from{transform:rotateY(0) rotateX(var(--rx))}to{transform:rotateY(var(--ry)) rotateX(calc(var(--rx)*-1))}}
 
 /* hero */
@@ -581,7 +590,7 @@ function render(){
   if (v){
     if (!animating){ intro.hidden = true; intro.classList.remove("leaving","gone"); }
     document.documentElement.classList.remove("locked");
-    rain.classList.remove("off");
+    if (!animating) rain.classList.remove("off");
     scrollTo(0,0); requestAnimationFrame(update);
   } else {
     intro.hidden = false; intro.classList.remove("leaving","gone");
@@ -592,26 +601,46 @@ function render(){
 addEventListener("hashchange", render);
 render();
 
+/* deixa as imagens das cartas decodificadas antes da explosão */
+const mobile = matchMedia("(max-width:700px)").matches;
+[...FACES.map(f=>`assets/f-${f}.webp`),"assets/back-red.webp","assets/back-blue.webp"].forEach(src=>{
+  const i = new Image(); i.src = src; if (i.decode) i.decode().catch(()=>{});
+});
+
+/* enquanto a pergunta está na tela, monta as duas páginas uma vez por baixo dela (a tela de entrada é opaca),
+   assim o toque não paga o custo do primeiro layout */
+if (!location.hash.slice(1)) setTimeout(()=>{
+  if (animating || location.hash.slice(1)) return;
+  Object.values(views).forEach(v=>{ v.hidden=false; v.offsetHeight; });
+  requestAnimationFrame(()=>{ if (!animating && !location.hash.slice(1)) Object.values(views).forEach(v=>v.hidden=true); });
+}, 700);
+
 /* resposta: cartas explodem do botão e a página aparece por trás */
 function burst(x,y){
-  const flash = document.createElement("div"); flash.className="flash"; flash.style.left=x+"px"; flash.style.top=y+"px";
+  const flash = document.createElement("div"); flash.className="flash";
+  flash.style.setProperty("--fx", x+"px"); flash.style.setProperty("--fy", y+"px");
   document.body.appendChild(flash);
-  flash.animate([{transform:"scale(1)",opacity:1},{transform:"scale(60)",opacity:0}],{duration:1200,easing:"cubic-bezier(.2,.7,.2,1)"}).onfinish=()=>flash.remove();
-  const n = innerWidth < 700 ? 18 : 30;
+  flash.animate([{opacity:0},{opacity:1,offset:.15},{opacity:0}],{duration:1100,easing:"ease-out"}).onfinish=()=>flash.remove();
+  const n = mobile ? 12 : 26, half = mobile ? 35 : 46;
+  const reach = mobile ? Math.max(innerWidth,innerHeight)*0.45 : Math.max(innerWidth,innerHeight)*0.6;
+  const frag = document.createDocumentFragment(), items = [];
   for(let i=0;i<n;i++){
     const w = document.createElement("div"); w.className="burst";
     w.innerHTML = card(FACES[i%FACES.length], i%2?"back-red":"back-blue");
-    document.body.appendChild(w);
-    const ang = rnd(-Math.PI*0.95, -Math.PI*0.05), dist = rnd(180, Math.max(innerWidth,innerHeight)*0.6);
-    const dx = Math.cos(ang)*dist, dy = Math.sin(ang)*dist, drop = rnd(520,900), r = rnd(-360,360), dur = rnd(1900,2600);
-    const sx = x-46, sy = y-64;
+    frag.appendChild(w); items.push(w);
+  }
+  document.body.appendChild(frag);
+  items.forEach(w=>{
+    const ang = rnd(-Math.PI*0.95, -Math.PI*0.05), dist = rnd(mobile?120:180, reach);
+    const dx = Math.cos(ang)*dist, dy = Math.sin(ang)*dist, drop = rnd(mobile?420:520, mobile?700:900), r = rnd(-360,360), dur = rnd(1900,2600);
+    const sx = x-half, sy = y-half*1.4;
     w.animate([
-      {transform:`translate(${sx}px,${sy}px) rotate(0deg) scale(.25)`,opacity:1},
-      {transform:`translate(${sx+dx}px,${sy+dy}px) rotate(${r*.5}deg) scale(1)`,opacity:1,offset:.42},
-      {transform:`translate(${sx+dx*1.25}px,${sy+dy+drop}px) rotate(${r}deg) scale(.85)`,opacity:0}
+      {transform:`translate3d(${sx}px,${sy}px,0) rotate(0deg) scale(.25)`,opacity:1},
+      {transform:`translate3d(${sx+dx}px,${sy+dy}px,0) rotate(${r*.5}deg) scale(1)`,opacity:1,offset:.42},
+      {transform:`translate3d(${sx+dx*1.25}px,${sy+dy+drop}px,0) rotate(${r}deg) scale(.85)`,opacity:0}
     ],{duration:dur,easing:"cubic-bezier(.18,.7,.35,1)",fill:"forwards"}).onfinish=()=>w.remove();
     w.querySelector(".pc-in").animate([{transform:"rotateY(0)"},{transform:`rotateY(${(Math.random()<.5?-1:1)*rnd(360,900)}deg)`}],{duration:dur,easing:"ease-out"});
-  }
+  });
 }
 document.querySelectorAll("[data-choose]").forEach(b=>b.addEventListener("click",e=>{
   if (animating) return;
@@ -619,10 +648,15 @@ document.querySelectorAll("[data-choose]").forEach(b=>b.addEventListener("click"
   if (reduce){ location.hash = target; return; }
   animating = true;
   const r = b.getBoundingClientRect();
-  burst(e.clientX || r.left+r.width/2, e.clientY || r.top+r.height/2);
-  intro.classList.add("leaving");
-  setTimeout(()=>{ location.hash = target; intro.classList.add("gone"); }, 650);
-  setTimeout(()=>{ intro.hidden = true; intro.classList.remove("leaving","gone"); animating = false; }, 2000);
+  const x = e.clientX || r.left+r.width/2, y = e.clientY || r.top+r.height/2;
+  /* monta a página por baixo da pergunta antes de animar, para o layout não disputar com a explosão */
+  location.hash = target; render();
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    burst(x,y);
+    intro.classList.add("leaving");
+    setTimeout(()=>intro.classList.add("gone"), 500);
+    setTimeout(()=>{ intro.hidden = true; intro.classList.remove("leaving","gone"); animating = false; rain.classList.remove("off"); }, 1900);
+  }));
 }));
 
 /* pilha: os cards de trás recuam conforme os próximos cobrem */
