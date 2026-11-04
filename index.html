@@ -629,7 +629,8 @@ const BURST_MS = 2800;
 function burst(x,y){
   const n = mobile ? 16 : 24, half = mobile ? 35 : 46;
   const W = innerWidth, H = innerHeight;
-  const apexX = x + rnd(-15,15), apexY = Math.max(y - rnd(150,210), H*0.18);
+  /* no celular o baralho vai para o centro da tela, para a explosão aparecer inteira */
+  const apexX = mobile ? W/2 : x + rnd(-15,15), apexY = mobile ? H*0.4 : Math.max(y - rnd(150,210), H*0.18);
   const flash = document.createElement("div"); flash.className="flash";
   flash.style.setProperty("--fx", apexX+"px"); flash.style.setProperty("--fy", apexY+"px");
   document.body.appendChild(flash);
