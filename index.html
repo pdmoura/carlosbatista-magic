@@ -1,0 +1,634 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Carlos Batista Mágicas</title>
+<meta name="description" content="Carlos Batista, mágico profissional de close-up. Shows para festas, empresas e restaurantes, e aulas das mágicas dos vídeos.">
+<meta name="theme-color" content="#0a0a0a">
+<meta property="og:title" content="Carlos Batista · Mágica de perto">
+<meta property="og:description" content="Mágico profissional para eventos e aulas das mágicas dos vídeos.">
+<meta property="og:type" content="website">
+<link rel="icon" href="assets/logo-mono.webp" type="image/webp">
+<style>body{margin:0}</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400..700&family=Instrument+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: tela de entrada preta com uma pergunta; duas páginas (aprender / eventos) em preto de cinema com cartas caindo atrás */
+:root{
+  --ink:#0a0a0a;
+  --surface:#131313;
+  --surface-2:#1a1a1a;
+  --felt:#11291f;
+  --green:#1e9e5e;
+  --green-hi:#24b56c;
+  --gold:#d2b16c;
+  --fg:#f4f1ea;
+  --muted:#a9a59c;
+  --display:"Bodoni Moda","Didot","Bodoni 72",Georgia,serif;
+  --body:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+html.locked{overflow:hidden}
+/* barra de rolagem na paleta do site */
+html{scrollbar-color:#2c2c2c var(--ink);scrollbar-width:thin}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:var(--ink)}
+::-webkit-scrollbar-thumb{background:#2c2c2c;border-radius:10px;border:2px solid var(--ink)}
+::-webkit-scrollbar-thumb:hover{background:var(--green)}
+::-webkit-scrollbar-corner{background:var(--ink)}
+body{background:var(--ink);color:var(--fg);font:17px/1.55 var(--body);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit}
+img{display:block;max-width:100%;height:auto}
+button{font:inherit;color:inherit}
+h1,h2,h3{font-family:var(--display);font-weight:500;line-height:1;margin:0;text-wrap:balance;letter-spacing:-.025em}
+p{margin:0}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+
+/* botões */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.6em;padding:1em 1.6em;border-radius:999px;font:600 1rem/1 var(--body);text-decoration:none;cursor:pointer;border:0;transition:background .2s,transform .2s}
+.btn:hover{transform:translateY(-1px)}
+.btn-go{background:var(--green);color:#fff}
+.btn-go:hover{background:var(--green-hi)}
+.btn-light{background:var(--fg);color:#111}
+.btn-light:hover{background:#fff}
+.btn-quiet{background:var(--surface-2);color:var(--fg)}
+.btn-quiet:hover{background:#242424}
+.btn svg{width:1.15em;height:1.15em;flex:none}
+
+/* ---------- tela de entrada ---------- */
+.intro{position:fixed;inset:0;z-index:100;background:#050505;display:grid;place-items:center;overflow-y:auto;
+  padding:max(24px,env(safe-area-inset-top,0px)) max(20px,env(safe-area-inset-right,0px)) max(24px,env(safe-area-inset-bottom,0px)) max(20px,env(safe-area-inset-left,0px));
+  transition:opacity 1s ease .35s}
+.intro-in{width:100%;max-width:760px;display:flex;flex-direction:column;align-items:center;gap:40px;text-align:center;
+  transition:opacity .6s ease,filter .6s ease,transform .6s ease}
+.intro .mark{width:84px;height:auto;animation:breathe 4s ease-in-out infinite}
+@keyframes breathe{50%{filter:drop-shadow(0 0 18px rgba(210,177,108,.35))}}
+.intro h1{font-size:clamp(2.6rem,7vw,4.8rem)}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:14px;width:100%}
+.choice{display:flex;flex-direction:column;align-items:flex-start;gap:12px;text-align:left;cursor:pointer;border:0;border-radius:18px;
+  background:var(--surface-2);padding:30px 28px;transition:background .25s,transform .25s}
+.choice:hover{background:#252525;transform:translateY(-3px)}
+.choice b{font:500 clamp(1.45rem,2.6vw,1.9rem)/1.1 var(--display);letter-spacing:-.02em}
+.choice span{font-size:1rem;color:var(--muted)}
+.intro.leaving .intro-in{opacity:0;filter:blur(12px);transform:scale(.96)}
+.intro.gone{opacity:0;pointer-events:none}
+@media (max-width:640px){.choices{grid-template-columns:1fr}.intro-in{gap:30px}.choice{padding:24px 22px}}
+
+/* explosão de cartas ao responder */
+.burst{position:fixed;z-index:101;left:0;top:0;pointer-events:none}
+.burst .pc{--w:92px}
+.flash{position:fixed;z-index:101;width:20px;height:20px;margin:-10px 0 0 -10px;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle,rgba(255,244,214,.9),rgba(210,177,108,.35) 40%,transparent 70%)}
+
+/* header */
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--ink)}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:var(--ink)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;height:72px;gap:20px}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;font:600 1.15rem/1 var(--display);letter-spacing:.01em}
+.brand img{height:40px;width:auto}
+.nav{display:flex;align-items:center;gap:30px;font-size:.95rem;color:var(--muted)}
+.nav button,.nav a{background:none;border:0;padding:0;cursor:pointer;color:inherit;text-decoration:none}
+.nav button:hover,.nav a:hover{color:var(--fg)}
+.top .btn{padding:.75em 1.2em;font-size:.92rem}
+@media (max-width:860px){.nav{display:none}}
+@media (max-width:480px){.top .btn{display:none}}
+
+/* cartas */
+.pc{--w:150px;width:var(--w);height:calc(var(--w)*1.4);perspective:1000px;flex:none}
+.pc-in{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .7s cubic-bezier(.2,.7,.2,1)}
+.pc-face{position:absolute;inset:0;border-radius:calc(var(--w)*.05);overflow:hidden;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  background:#fff center/cover no-repeat;box-shadow:0 2px 4px rgba(0,0,0,.35),0 22px 40px -16px rgba(0,0,0,.8)}
+.pc-back{transform:rotateY(180deg)}
+.pc.flipped .pc-in{transform:rotateY(180deg)}
+.pc[role=button]{cursor:pointer}
+
+/* cartas caindo pelo site todo, perdendo cor e nitidez até sumir no preto */
+.rain{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;transition:opacity 1.2s ease}
+.rain.off{opacity:0}
+main,footer{position:relative;z-index:1}
+.rain .pc{position:absolute;top:-320px;left:var(--x);--w:var(--cw);will-change:transform,opacity,filter;animation:fall var(--d) linear var(--delay) infinite}
+.rain .pc .pc-in{animation:spin var(--d) linear var(--delay) infinite}
+@keyframes fall{
+  0%{transform:translate3d(0,0,0) rotate(var(--r0));opacity:var(--o);filter:blur(var(--b)) saturate(1) brightness(.9)}
+  55%{opacity:calc(var(--o)*.55);filter:blur(calc(var(--b) + 3px)) saturate(.35) brightness(.6)}
+  100%{transform:translate3d(var(--dx),calc(100vh + 360px),0) rotate(var(--r1));opacity:0;filter:blur(calc(var(--b) + 8px)) saturate(0) brightness(.3)}}
+@keyframes spin{from{transform:rotateY(0) rotateX(var(--rx))}to{transform:rotateY(var(--ry)) rotateX(calc(var(--rx)*-1))}}
+
+/* hero */
+.hero{position:relative;padding-block:64px 88px;background:radial-gradient(ellipse 38% 75% at 74% 18%,rgba(255,246,225,.11),transparent 70%)}
+.hero .wrap{position:relative;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:40px;align-items:center}
+.hero h1{font-size:clamp(2.8rem,5vw,4.4rem);margin-bottom:26px}
+.hero .lede{font-size:1.2rem;max-width:30em;color:#e2ded5}
+.ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:34px}
+.stats{display:flex;flex-wrap:wrap;gap:20px 48px;margin-top:56px}
+.stats div{display:flex;flex-direction:column}
+.stats b{font:500 2.2rem/1 var(--display);color:var(--gold);font-variant-numeric:lining-nums}
+.stats span{font-size:.92rem;color:var(--muted);margin-top:6px}
+.fan{position:relative;height:460px}
+.fan::after{content:"";position:absolute;left:12%;right:12%;bottom:26px;height:40px;border-radius:50%;background:rgba(0,0,0,.65);filter:blur(18px);z-index:-1}
+.fan .pc{position:absolute;left:50%;bottom:48px;--w:min(184px,30vw);margin-left:calc(var(--w)/-2);transform-origin:50% 135%;
+  animation:spread 1.2s cubic-bezier(.2,.8,.2,1) .25s forwards}
+@keyframes spread{to{transform:rotate(var(--a)) translateY(var(--y))}}
+.fan .pc:hover .pc-in{transform:translateY(-14px)}
+.fan .pc.flipped:hover .pc-in{transform:translateY(-14px) rotateY(180deg)}
+@media (max-width:860px){
+  .hero{padding-block:28px 64px;background:radial-gradient(ellipse 90% 40% at 50% 0%,rgba(255,246,225,.12),transparent 75%)}
+  .hero .wrap{grid-template-columns:1fr}
+  .fan{height:300px;order:-1}
+  .fan .pc{--w:118px}
+  .stats{gap:18px 32px;margin-top:40px}
+  .stats b{font-size:1.8rem}
+}
+
+/* seções */
+.sec{padding-block:140px}
+.head{display:flex;justify-content:space-between;align-items:end;gap:20px 40px;flex-wrap:wrap;margin-bottom:56px}
+.head h2{font-size:clamp(2.6rem,5.6vw,4.6rem)}
+.head p{color:var(--muted);max-width:26em;font-size:1.05rem}
+@media (max-width:760px){.sec{padding-block:96px}}
+
+/* instagram: carrossel infinito */
+.ig .head{margin-bottom:40px}
+.marquee{overflow:hidden}
+.track{display:flex;gap:16px;width:max-content;animation:marquee 90s linear infinite}
+.marquee:hover .track{animation-play-state:paused}
+@keyframes marquee{to{transform:translateX(calc(-50% - 8px))}}
+.reel{position:relative;display:block;flex:0 0 auto;width:clamp(200px,22vw,290px);aspect-ratio:4/5;text-decoration:none;border-radius:14px;overflow:hidden;background:var(--surface)}
+.reel img{width:100%;height:100%;object-fit:cover;transition:transform .5s}
+.reel:hover img{transform:scale(1.05)}
+.reel::after{content:"";position:absolute;inset:auto 0 0;height:45%;background:linear-gradient(transparent,rgba(0,0,0,.75))}
+.reel .play{position:absolute;top:14px;right:14px;width:42px;height:42px;border-radius:50%;background:rgba(0,0,0,.55);display:grid;place-items:center;z-index:1}
+.reel .play svg{width:16px;height:16px;margin-left:2px;fill:#fff}
+.reel .views{position:absolute;left:16px;bottom:14px;z-index:1;font-size:.95rem;line-height:1.3}
+.reel .views b{display:block;font:500 1.7rem/1 var(--display)}
+
+/* mágicas: pilha */
+.stack{display:flex;flex-direction:column;gap:28px}
+.slot{position:sticky;top:calc(env(safe-area-inset-top,0px) + 96px + var(--i)*14px)}
+.panel{transform-origin:50% 0;will-change:transform;border-radius:20px;overflow:hidden;background:var(--surface);color:inherit;text-decoration:none;cursor:pointer;
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);min-height:420px;box-shadow:0 -30px 60px -30px #000}
+.vis{position:relative;background:var(--felt);display:grid;place-items:center;overflow:hidden;min-height:420px}
+.vis .pc{--w:210px}
+.vis-sponge img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:40% 50%}
+.vis-pen{position:relative}
+.vis-pen .photo{width:300px;aspect-ratio:1;object-fit:cover;border-radius:12px;transform:rotate(-4deg)}
+.vis-pen .pc{position:absolute;--w:150px;left:calc(50% + 40px);top:calc(50% - 20px);transform:rotate(10deg)}
+.vis-fan .pc{position:absolute;--w:180px;transform:rotate(var(--a)) translateX(var(--x));transform-origin:50% 120%}
+.vis .pc.tilt{transform:rotate(-6deg)}
+.vis>*{transition:transform .5s cubic-bezier(.2,.7,.2,1)}
+.panel:hover .vis>*{transform:scale(1.04)}
+.panel:hover .btn-light{background:#fff}
+.panel:hover h3{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:.12em}
+.info{padding:56px;display:flex;flex-direction:column;justify-content:center;gap:18px}
+.info h3{font-size:clamp(2.2rem,3.8vw,3.4rem)}
+.info p{font-size:1.15rem;color:#d9d5cc;max-width:24em}
+.buy{display:flex;align-items:center;gap:24px;flex-wrap:wrap;margin-top:14px}
+.price{font:500 2.4rem/1 var(--display);font-variant-numeric:lining-nums}
+@media (max-width:820px){
+  .slot{position:relative;top:auto}
+  .panel{grid-template-columns:1fr;min-height:0;transform:none!important;filter:none!important}
+  .vis{min-height:280px}
+  .vis .pc{--w:150px}
+  .vis-fan .pc{--w:130px}
+  .vis-pen .photo{width:210px}
+  .vis-pen .pc{--w:108px;left:calc(50% + 30px)}
+  .info{padding:28px 24px 32px}
+}
+
+/* kit */
+.kit{color:inherit;text-decoration:none;border-radius:20px;background:var(--surface);display:grid;grid-template-columns:minmax(0,1fr) auto;gap:40px;align-items:center;padding:52px 56px;overflow:hidden}
+.kit h2{font-size:clamp(2.2rem,4.4vw,3.6rem);margin-bottom:14px}
+.kit p{color:var(--muted);max-width:30em}
+.kit .buy{margin-top:28px}
+.kit:hover .btn-light{background:#fff}
+.kit:hover h2{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:.12em}
+.kit .was{color:var(--muted);text-decoration:line-through;font-size:1.05rem}
+.kit-cards{position:relative;width:340px;height:240px}
+.kit-cards .pc{position:absolute;left:50%;top:6px;--w:140px;margin-left:-70px;transform:rotate(var(--a)) translateX(var(--x))}
+@media (max-width:820px){.kit{grid-template-columns:1fr;padding:32px 24px}.kit-cards{width:100%;height:220px;order:-1}.kit-cards .pc{--w:118px;margin-left:-59px}}
+
+/* sobre / contratar */
+.hire{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:72px;align-items:center}
+.portrait{position:relative;border-radius:20px;overflow:hidden;aspect-ratio:3/4;max-width:440px;width:100%;background:#050505}
+.portrait img.photo{position:absolute;right:0;bottom:0;height:100%;width:auto;max-width:none;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 32%);mask-image:linear-gradient(90deg,transparent 0%,#000 32%)}
+.portrait .logo{position:absolute;left:22px;bottom:22px;width:40%}
+.hire h2{font-size:clamp(2.6rem,5vw,4.2rem);margin-bottom:24px}
+.hire p{color:#d9d5cc;max-width:32em;font-size:1.1rem}
+.hire p+p{margin-top:14px}
+.occasions{display:flex;flex-wrap:wrap;gap:10px;margin-block:30px 34px}
+.occasions span{background:var(--surface-2);border-radius:999px;padding:.55em 1.1em;font-size:.95rem}
+.hire .ctas{margin-top:0}
+.btn-big{font-size:1.08rem;padding:1.1em 1.8em}
+@media (max-width:820px){.hire{grid-template-columns:1fr;gap:40px}.portrait{max-width:360px}}
+
+/* perguntas */
+.faq-list{display:grid;gap:10px;max-width:860px}
+.faq-list details{background:var(--surface);border-radius:16px}
+.faq-list summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:20px;padding:24px 28px;font:500 clamp(1.25rem,2.2vw,1.5rem)/1.25 var(--display)}
+.faq-list summary::-webkit-details-marker{display:none}
+.faq-list summary::after{content:"+";font:400 1.8rem/1 var(--body);color:var(--gold);transition:transform .3s;flex:none}
+.faq-list details[open] summary::after{transform:rotate(45deg)}
+.faq-list details p{padding:0 28px 26px;color:#d9d5cc;max-width:40em;font-size:1.05rem}
+@media (max-width:640px){.faq-list summary{padding:20px 22px}.faq-list details p{padding:0 22px 22px}}
+
+/* rodapé */
+footer{background:var(--surface);padding-block:72px 120px}
+footer .name{font:500 clamp(3rem,11vw,9.5rem)/.9 var(--display);letter-spacing:-.04em}
+footer .row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-top:40px;color:var(--muted);font-size:.95rem}
+footer .row nav{display:flex;flex-wrap:wrap;gap:24px}
+footer a{text-decoration:none;color:var(--fg)}
+
+/* WhatsApp flutuante (página de eventos) */
+.wa{position:fixed;z-index:70;right:calc(20px + env(safe-area-inset-right,0px));bottom:calc(20px + env(safe-area-inset-bottom,0px));
+  display:flex;align-items:center;gap:10px;background:var(--green);color:#fff;text-decoration:none;border-radius:999px;padding:14px 20px 14px 16px;
+  font:600 .98rem/1 var(--body);box-shadow:0 12px 30px -8px rgba(0,0,0,.7);transition:background .2s,transform .2s}
+.wa:hover{background:var(--green-hi);transform:translateY(-2px)}
+.wa svg{width:24px;height:24px}
+@media (max-width:560px){.wa span{display:none}.wa{padding:15px}}
+
+@media (prefers-reduced-motion:reduce){
+  .rain{display:none}
+  .track{animation:none}.marquee{overflow-x:auto}
+  .fan .pc{animation:none;transform:rotate(var(--a)) translateY(var(--y))}
+  .pc-in,.intro,.intro-in{transition:none}
+  .intro .mark{animation:none}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+
+
+<!-- ===== Tela de entrada ===== -->
+<div class="intro" id="intro" role="dialog" aria-modal="true" aria-labelledby="q">
+  <div class="intro-in">
+    <img class="mark" src="assets/logo-mono.webp" alt="Carlos Batista" width="190" height="214">
+    <h1 id="q">O que você procura?</h1>
+    <div class="choices">
+      <button class="choice" data-choose="aprender"><b>Quero aprender mágica</b><span>As mágicas dos vídeos, em aulas</span></button>
+      <button class="choice" data-choose="eventos"><b>Quero um mágico no meu evento</b><span>Festas, empresas e restaurantes</span></button>
+    </div>
+  </div>
+</div>
+
+<div class="rain off" id="rain" aria-hidden="true"></div>
+
+<!-- ===== Página: aprender ===== -->
+<div class="view" id="view-aprender" hidden>
+  <header class="top">
+    <div class="wrap">
+      <a class="brand" href="#"><img src="assets/logo-mono.webp" alt="" width="190" height="214">Carlos Batista</a>
+      <nav class="nav" aria-label="Seções"><button data-scroll="a-magicas">Mágicas</button><button data-scroll="a-kit">Kit</button><button data-scroll="a-perguntas">Perguntas</button><button data-scroll="a-videos">Vídeos</button></nav>
+      <a class="btn btn-quiet" href="#eventos">Mágico para eventos</a>
+    </div>
+  </header>
+  <main>
+    <section class="hero">
+      <div class="wrap">
+        <div>
+          <h1>Aprenda as mágicas dos vídeos.</h1>
+          <p class="lede">Os mesmos efeitos que surpreendem desconhecidos no Instagram, ensinados passo a passo pelo Carlos.</p>
+          <div class="ctas">
+            <button class="btn btn-go" data-scroll="a-magicas">Ver as mágicas</button>
+            <button class="btn btn-quiet" data-scroll="a-kit">Comprar o kit</button>
+          </div>
+          <div class="stats">
+            <div><b>2,2 mi</b><span>views no vídeo mais visto</span></div>
+            <div><b>5</b><span>mágicas para aprender</span></div>
+            <div><b id="a-min"></b><span>a partir de</span></div>
+          </div>
+        </div>
+        <div class="fan" aria-label="Leque de cartas: toque para virar"></div>
+      </div>
+    </section>
+
+    <section class="sec" id="a-magicas">
+      <div class="wrap">
+        <div class="head"><h2>Escolha sua mágica.</h2><p>Escolha uma, pague e receba a aula na hora.</p></div>
+        <div class="stack" id="stack"></div>
+      </div>
+    </section>
+
+    <section class="wrap" id="a-kit">
+      <a class="kit" id="kit-link" href="#">
+        <div>
+          <h2>Todas as cinco mágicas</h2>
+          <p>As cinco aulas juntas, mais um bônus sobre como gravar sua mágica para o Instagram.</p>
+          <div class="buy"><span class="was" id="kit-was"></span><span class="price" id="kit-price"></span><span class="btn btn-light">Comprar o kit</span></div>
+        </div>
+        <div class="kit-cards" id="kit-cards" aria-hidden="true"></div>
+      </a>
+    </section>
+
+    <section class="sec" id="a-perguntas">
+      <div class="wrap">
+        <div class="head"><h2>Perguntas</h2></div>
+        <div class="faq-list">
+          <details><summary>Preciso saber mágica?</summary><p>Não. As aulas começam do zero e mostram as mãos de perto, passo a passo.</p></details>
+          <details><summary>Preciso de algum material especial?</summary><p>Não. As mágicas com cartas usam um baralho comum. As bolinhas de esponja custam pouco e são vendidas em qualquer loja de mágica.</p></details>
+          <details><summary>Como recebo a aula?</summary><p>Por e-mail, logo depois que o pagamento é aprovado. Pix ou cartão.</p></details>
+          <details><summary>E se eu não gostar?</summary><p>Você tem 7 dias para pedir o reembolso.</p></details>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec ig" id="a-videos" style="padding-top:0">
+      <div class="wrap head">
+        <h2>Veja funcionando.</h2>
+        <a class="btn btn-quiet" href="https://www.instagram.com/carlosbatista.magic/" target="_blank" rel="noopener">Seguir no Instagram</a>
+      </div>
+      <div class="marquee"><div class="track js-reels"></div></div>
+    </section>
+  </main>
+  <footer>
+    <div class="wrap">
+      <div class="name">Carlos Batista</div>
+      <div class="row">
+        <span>Mágica de perto · © 2026</span>
+        <nav><a href="#eventos">Contratar para evento</a><a href="https://www.instagram.com/carlosbatista.magic/" target="_blank" rel="noopener">Instagram</a></nav>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<!-- ===== Página: eventos ===== -->
+<div class="view" id="view-eventos" hidden>
+  <header class="top">
+    <div class="wrap">
+      <a class="brand" href="#"><img src="assets/logo-mono.webp" alt="" width="190" height="214">Carlos Batista</a>
+      <nav class="nav" aria-label="Seções"><button data-scroll="e-sobre">Sobre</button><button data-scroll="e-perguntas">Perguntas</button><button data-scroll="e-videos">Reações</button><a href="#aprender">Aprender mágicas</a></nav>
+      <a class="btn btn-go js-wa" href="#">Pedir orçamento</a>
+    </div>
+  </header>
+  <main>
+    <section class="hero">
+      <div class="wrap">
+        <div>
+          <h1>Carlos Batista, mágico profissional.</h1>
+          <p class="lede">A mágica acontece na mão dos seus convidados. Close-up de mesa em mesa para festas, empresas e restaurantes.</p>
+          <div class="ctas">
+            <a class="btn btn-go js-wa" href="#">Pedir orçamento no WhatsApp</a>
+            <button class="btn btn-quiet" data-scroll="e-videos">Ver reações</button>
+          </div>
+          <div class="stats">
+            <div><b>2,2 mi</b><span>views no vídeo mais visto</span></div>
+            <div><b>20,4 mil</b><span>seguidores</span></div>
+            <div><b>288/1000</b><span>pessoas na missão</span></div>
+          </div>
+        </div>
+        <div class="fan" aria-label="Leque de cartas: toque para virar"></div>
+      </div>
+    </section>
+
+    <section class="sec" id="e-sobre" style="padding-top:40px">
+      <div class="wrap hire">
+        <div class="portrait">
+          <img class="photo" src="assets/carlos.webp" alt="Carlos Batista" width="248" height="461">
+          <img class="logo" src="assets/logo-full.webp" alt="" width="384" height="314">
+        </div>
+        <div>
+          <h2>Mágica de perto no seu evento.</h2>
+          <p>O Carlos é mágico de close-up. Transforma desconhecidos em momentos impossíveis e grava cada encontro para a missão de surpreender 1000 pessoas.</p>
+          <p>No seu evento, a mágica acontece na mão dos convidados, de mesa em mesa.</p>
+          <div class="occasions"><span>Eventos</span><span>Empresas</span><span>Restaurantes</span><span>Festas</span></div>
+          <div class="ctas">
+            <a class="btn btn-go btn-big js-wa" href="#">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .1-1.3c0-.1-.2-.2-.4-.3z"/></svg>
+              Pedir orçamento no WhatsApp</a>
+            <a class="btn btn-quiet" href="https://www.instagram.com/carlosbatista.magic/" target="_blank" rel="noopener">Ver o Instagram</a>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="sec" id="e-perguntas">
+      <div class="wrap">
+        <div class="head"><h2>Perguntas</h2></div>
+        <div class="faq-list">
+          <details><summary>Como funciona a mágica de close-up?</summary><p>O Carlos passa de mesa em mesa ou entre os grupos, e a mágica acontece na mão dos convidados. Não precisa de palco, som nem estrutura.</p></details>
+          <details><summary>Para quantas pessoas funciona?</summary><p>De jantares pequenos a eventos grandes. O formato é ajustado ao número de convidados.</p></details>
+          <details><summary>Quanto tempo dura?</summary><p>Combinamos de acordo com o seu evento, na hora do orçamento.</p></details>
+          <details><summary>Como peço um orçamento?</summary><p>Pelo WhatsApp. Mande a data, a cidade, o tipo de evento e o número de convidados.</p></details>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec ig" id="e-videos" style="padding-top:0">
+      <div class="wrap head">
+        <h2>Reações de verdade.</h2>
+        <p>Desconhecidos na rua, no parque, no escritório. Toque para assistir.</p>
+      </div>
+      <div class="marquee"><div class="track js-reels"></div></div>
+    </section>
+
+  </main>
+  <footer>
+    <div class="wrap">
+      <div class="name">Carlos Batista</div>
+      <div class="row">
+        <span>Mágica de perto · © 2026</span>
+        <nav><a href="#aprender">Aprender mágicas</a><a href="https://www.instagram.com/carlosbatista.magic/" target="_blank" rel="noopener">Instagram</a><a class="js-wa" href="#">WhatsApp</a></nav>
+      </div>
+    </div>
+  </footer>
+  <a class="wa js-wa" href="#" aria-label="Chamar no WhatsApp">
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .1-1.3c0-.1-.2-.2-.4-.3z"/></svg>
+    <span>Chamar no WhatsApp</span>
+  </a>
+</div>
+
+<script>
+/* ===== Edite aqui ===== */
+const WHATSAPP = { numero: "5511981549110", mensagem: "Olá, Carlos! Quero um orçamento de mágica para um evento." }; // só dígitos com DDI, ex. 5561999999999
+const KIT = { preco: 97, link: "" };   // link de checkout
+const MAGICAS = [
+  { nome:"Bolinhas que Multiplicam", frase:"Uma bolinha fecha na mão da pessoa. Quando ela abre, são três.", preco:27, link:"", vis:"sponge" },
+  { nome:"A Carta Assinada",         frase:"A carta assinada volta para o topo do baralho. Três vezes.",       preco:37, link:"", vis:"pen" },
+  { nome:"Troca no Sopro",           frase:"Um sopro, e a carta muda na frente dos olhos.",                    preco:27, link:"", vis:"flip" },
+  { nome:"A Carta Pensada",          frase:"A pessoa só pensa na carta. Você diz qual é.",                     preco:37, link:"", vis:"fan" },
+  { nome:"Do Não ao Uau",            frase:"Como abordar um desconhecido e fazer a mágica acontecer.",          preco:47, link:"", vis:"card" }
+];
+const REELS = [
+  { id:"DaogRw2sDrh", img:"assets/reel-1.webp",  views:"2,2 mi",   legenda:"Olha a carinha dela" },
+  { id:"DeAXenONQ95", img:"assets/reel-5.webp",  views:"1,2 mi",   legenda:"Mágica no escritório" },
+  { id:"DdZshMgtGNu", img:"assets/reel-3.webp",  views:"746 mil",  legenda:"Qual é a brisa disso?" },
+  { id:"DdUtLJxtZuo", img:"assets/reel-9.webp",  views:"31,7 mil", legenda:"Mágica no parque" },
+  { id:"DfQfm1tt5aq", img:"assets/reel-4.webp",  views:"26,1 mil", legenda:"Nem eu esperava essa reação" },
+  { id:"DdcrIVaN8Bb", img:"assets/reel-7.webp",  views:"48,8 mil", legenda:"Reação com a carta" },
+  { id:"Dcw_6S5tn55", img:"assets/reel-2.webp",  views:"1,4 mi",   legenda:"Levei um não… mas olha" },
+  { id:"DeZFm6aNBQs", img:"assets/reel-6.webp",  views:"799 mil",  legenda:"Reação na rua" },
+  { id:"DdzeSJttEoP", img:"assets/reel-10.webp", views:"24,9 mil", legenda:"Carta no piquenique" },
+  { id:"DfNi4VCtvil", img:"assets/reel-8.webp",  views:"36,6 mil", legenda:"Alvo avistado" },
+  { id:"Dd7dOR3NfvI", img:"assets/reel-11.webp", views:"24,1 mil", legenda:"Dupla no banco" },
+  { id:"DfDbDaBtiqY", img:"assets/reel-12.webp", views:"23,1 mil", legenda:"Ela não acreditou" },
+  { id:"DeLAVQatUXi", img:"assets/reel-13.webp", views:"21,4 mil", legenda:"Carta trocada" }
+];
+/* ====================== */
+
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const F = k => `url(assets/${k.startsWith("back") ? k : "f-"+k}.webp)`;
+const FACES = ["As","Ks","Qs","Js","10s","Kh","Qh","Jh","Ac"];
+const brl = n => "R$ " + n.toLocaleString("pt-BR");
+const rnd = (a,b)=>a+Math.random()*(b-a);
+function card(front, back="back-red", extra=""){
+  return `<div class="pc" ${extra}><div class="pc-in"><div class="pc-face" style="background-image:${F(front)}"></div><div class="pc-face pc-back" style="background-image:${F(back)}"></div></div></div>`;
+}
+/* link de checkout ainda vazio: não navega */
+const linkAttr = l => l ? `href="${l}"` : `href="#" data-pending`;
+
+/* WhatsApp */
+document.querySelectorAll(".js-wa").forEach(a=>{
+  if (WHATSAPP.numero){ a.href=`https://wa.me/${WHATSAPP.numero}?text=${encodeURIComponent(WHATSAPP.mensagem)}`; a.target="_blank"; a.rel="noopener"; }
+  else { a.setAttribute("data-pending",""); }
+});
+
+/* leques do hero */
+document.querySelectorAll(".fan").forEach(fan=>{
+  fan.innerHTML = [["10s",-24,18,"back-blue"],["Js",-12,4,"back-red"],["Qs",0,0,"back-blue"],["Ks",12,4,"back-red"],["As",24,18,"back-blue"]]
+    .map(([f,a,y,b])=>card(f,b,`style="--a:${a}deg;--y:${y}px" tabindex="0" role="button" aria-label="Virar carta"`)).join("");
+});
+
+/* chuva de cartas */
+const rain = document.getElementById("rain");
+(function(){
+  const n = innerWidth < 700 ? 7 : 14;
+  for(let i=0;i<n;i++){
+    const near = Math.random() < .35;
+    const st = `style="--x:${rnd(-4,96)}%;--cw:${near?rnd(100,134):rnd(56,86)}px;--d:${rnd(10,18)}s;--delay:${-rnd(0,18)}s;--r0:${rnd(-40,40)}deg;--r1:${rnd(-220,220)}deg;--dx:${rnd(-120,120)}px;--rx:${rnd(-35,35)}deg;--ry:${(Math.random()<.5?-1:1)*rnd(360,900)}deg;--b:${near?0:rnd(.8,2)}px;--o:${near?.78:.45}"`;
+    rain.insertAdjacentHTML("beforeend", card(FACES[i%FACES.length], i%2?"back-red":"back-blue", st));
+  }
+})();
+
+/* instagram: duas cópias da lista fazem o loop sem emenda */
+const reelHTML = (r,hidden) => `
+  <a class="reel" href="https://www.instagram.com/reel/${r.id}/" target="_blank" rel="noopener" ${hidden?'aria-hidden="true" tabindex="-1"':`aria-label="${r.legenda}, ${r.views} visualizações"`}>
+    <img src="${r.img}" alt="" width="354" height="443" loading="lazy">
+    <span class="play"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+    <span class="views"><b>${r.views}</b>views</span>
+  </a>`;
+document.querySelectorAll(".js-reels").forEach(t=>t.innerHTML = REELS.map(r=>reelHTML(r,false)).join("") + REELS.map(r=>reelHTML(r,true)).join(""));
+
+/* mágicas */
+function visual(m){
+  switch(m.vis){
+    case "sponge": return `<div class="vis vis-sponge"><img src="assets/sponge-photo.webp" alt="Bolinha de esponja na mão" width="900" height="603"></div>`;
+    case "pen":    return `<div class="vis"><div class="vis-pen"><img class="photo" src="assets/sharpie.webp" alt="Canetas para assinar a carta" width="560" height="560">${card("As","back-red")}</div></div>`;
+    case "flip":   return `<div class="vis">${card("Kh","10s",'data-auto-flip').replace('class="pc"','class="pc tilt"')}</div>`;
+    case "fan":    return `<div class="vis vis-fan">${card("Qh","back-red",'style="--a:-14deg;--x:-50px"')}${card("Jh","back-blue",'style="--a:14deg;--x:50px"')}${card("As","back-red",'style="--a:0deg;--x:0px"')}</div>`;
+    default:       return `<div class="vis">${card("Qs","back-blue").replace('class="pc"','class="pc tilt"')}</div>`;
+  }
+}
+document.getElementById("stack").innerHTML = MAGICAS.map((m,i)=>`
+  <article class="slot" style="--i:${i}"><a class="panel" ${linkAttr(m.link)} aria-label="Comprar ${m.nome} por ${brl(m.preco)}">
+    ${visual(m)}
+    <div class="info">
+      <h3>${m.nome}</h3>
+      <p>${m.frase}</p>
+      <div class="buy"><span class="price">${brl(m.preco)}</span><span class="btn btn-light">Comprar</span></div>
+    </div>
+  </a></article>`).join("");
+if (!reduce) document.querySelectorAll("[data-auto-flip]").forEach(c=>setInterval(()=>c.classList.toggle("flipped"),2400));
+document.getElementById("a-min").textContent = brl(Math.min(...MAGICAS.map(m=>m.preco)));
+
+/* kit */
+const kitLink = document.getElementById("kit-link");
+if (KIT.link) kitLink.href = KIT.link; else kitLink.setAttribute("data-pending","");
+document.getElementById("kit-was").textContent = brl(MAGICAS.reduce((t,m)=>t+m.preco,0));
+document.getElementById("kit-price").textContent = brl(KIT.preco);
+document.getElementById("kit-cards").innerHTML =
+  [["Ks",-24,-60],["Qh",-12,-30],["Js",0,0],["Kh",12,30],["As",24,60]].map(([f,a,x])=>card(f,"back-red",`style="--a:${a}deg;--x:${x}px"`)).join("");
+
+/* cliques gerais */
+document.addEventListener("click",e=>{
+  if (e.target.closest("[data-pending]")) { e.preventDefault(); return; }
+  const s = e.target.closest("[data-scroll]");
+  if (s) {
+    /* rola até o título ou cartão da seção, descontando o cabeçalho fixo */
+    const sec = document.getElementById(s.dataset.scroll);
+    const el = sec.querySelector(".head, .kit") || sec;
+    const header = sec.closest(".view").querySelector(".top").offsetHeight;
+    scrollTo({top: el.getBoundingClientRect().top + scrollY - header - 28, behavior: reduce?"auto":"smooth"});
+    return;
+  }
+  const pc = e.target.closest(".pc[role=button]"); if (pc) pc.classList.toggle("flipped");
+});
+document.addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.target.matches(".pc[role=button]")){e.preventDefault();e.target.classList.toggle("flipped")}});
+
+/* rotas: #aprender, #eventos; sem hash = pergunta inicial */
+const intro = document.getElementById("intro");
+const views = { aprender: document.getElementById("view-aprender"), eventos: document.getElementById("view-eventos") };
+let animating = false;
+function render(){
+  const name = location.hash.slice(1);
+  const v = views[name];
+  Object.values(views).forEach(el => el.hidden = el !== v);
+  if (v){
+    if (!animating){ intro.hidden = true; intro.classList.remove("leaving","gone"); }
+    document.documentElement.classList.remove("locked");
+    rain.classList.remove("off");
+    scrollTo(0,0); requestAnimationFrame(update);
+  } else {
+    intro.hidden = false; intro.classList.remove("leaving","gone");
+    document.documentElement.classList.add("locked");
+    rain.classList.add("off");
+  }
+}
+addEventListener("hashchange", render);
+render();
+
+/* resposta: cartas explodem do botão e a página aparece por trás */
+function burst(x,y){
+  const flash = document.createElement("div"); flash.className="flash"; flash.style.left=x+"px"; flash.style.top=y+"px";
+  document.body.appendChild(flash);
+  flash.animate([{transform:"scale(1)",opacity:1},{transform:"scale(60)",opacity:0}],{duration:1200,easing:"cubic-bezier(.2,.7,.2,1)"}).onfinish=()=>flash.remove();
+  const n = innerWidth < 700 ? 18 : 30;
+  for(let i=0;i<n;i++){
+    const w = document.createElement("div"); w.className="burst";
+    w.innerHTML = card(FACES[i%FACES.length], i%2?"back-red":"back-blue");
+    document.body.appendChild(w);
+    const ang = rnd(-Math.PI*0.95, -Math.PI*0.05), dist = rnd(180, Math.max(innerWidth,innerHeight)*0.6);
+    const dx = Math.cos(ang)*dist, dy = Math.sin(ang)*dist, drop = rnd(520,900), r = rnd(-360,360), dur = rnd(1900,2600);
+    const sx = x-46, sy = y-64;
+    w.animate([
+      {transform:`translate(${sx}px,${sy}px) rotate(0deg) scale(.25)`,opacity:1},
+      {transform:`translate(${sx+dx}px,${sy+dy}px) rotate(${r*.5}deg) scale(1)`,opacity:1,offset:.42},
+      {transform:`translate(${sx+dx*1.25}px,${sy+dy+drop}px) rotate(${r}deg) scale(.85)`,opacity:0}
+    ],{duration:dur,easing:"cubic-bezier(.18,.7,.35,1)",fill:"forwards"}).onfinish=()=>w.remove();
+    w.querySelector(".pc-in").animate([{transform:"rotateY(0)"},{transform:`rotateY(${(Math.random()<.5?-1:1)*rnd(360,900)}deg)`}],{duration:dur,easing:"ease-out"});
+  }
+}
+document.querySelectorAll("[data-choose]").forEach(b=>b.addEventListener("click",e=>{
+  if (animating) return;
+  const target = b.dataset.choose;
+  if (reduce){ location.hash = target; return; }
+  animating = true;
+  const r = b.getBoundingClientRect();
+  burst(e.clientX || r.left+r.width/2, e.clientY || r.top+r.height/2);
+  intro.classList.add("leaving");
+  setTimeout(()=>{ location.hash = target; intro.classList.add("gone"); }, 650);
+  setTimeout(()=>{ intro.hidden = true; intro.classList.remove("leaving","gone"); animating = false; }, 2000);
+}));
+
+/* pilha: os cards de trás recuam conforme os próximos cobrem */
+const slots=[...document.querySelectorAll(".slot")], panels=slots.map(s=>s.firstElementChild);
+let ticking=false;
+function update(){
+  ticking=false; if (innerWidth<=820 || views.aprender.hidden) return;
+  const vh=innerHeight, tops=slots.map(s=>parseFloat(getComputedStyle(s).top)), rects=slots.map(s=>s.getBoundingClientRect());
+  panels.forEach((p,i)=>{
+    let d=0; for(let j=i+1;j<slots.length;j++) d+=Math.min(1,Math.max(0,(vh-rects[j].top)/(vh-tops[j])));
+    d=Math.min(d,3); p.style.transform=`scale(${1-d*.045})`; p.style.filter=`brightness(${1-d*.2})`;
+  });
+}
+addEventListener("scroll",()=>{if(!ticking){ticking=true;requestAnimationFrame(update)}},{passive:true});
+addEventListener("resize",update);
+</script>
+
+</body>
+</html>
