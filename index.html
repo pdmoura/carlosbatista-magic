@@ -258,11 +258,12 @@ main,footer{position:relative;z-index:1}
 
 /* perguntas */
 .faq-list{display:grid;gap:10px;max-width:860px}
-.faq-list details{background:var(--surface);border-radius:16px}
+.faq-list details{background:var(--surface);border-radius:16px;overflow:hidden;transition:background .3s}
+.faq-list details:hover,.faq-list details.is-open{background:#171717}
 .faq-list summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:20px;padding:24px 28px;font:500 clamp(1.25rem,2.2vw,1.5rem)/1.25 var(--display)}
 .faq-list summary::-webkit-details-marker{display:none}
-.faq-list summary::after{content:"+";font:400 1.8rem/1 var(--body);color:var(--gold);transition:transform .3s;flex:none}
-.faq-list details[open] summary::after{transform:rotate(45deg)}
+.faq-list summary::after{content:"+";font:400 1.8rem/1 var(--body);color:var(--gold);transition:transform .45s cubic-bezier(.2,.7,.2,1);flex:none}
+.faq-list details.is-open summary::after{transform:rotate(45deg)}
 .faq-list details p{padding:0 28px 26px;color:#d9d5cc;max-width:40em;font-size:1.05rem}
 @media (max-width:640px){.faq-list summary{padding:20px 22px}.faq-list details p{padding:0 22px 22px}}
 
@@ -544,6 +545,32 @@ const linkAttr = l => l ? `href="${l}"` : `href="#" data-pending`;
 /* redes sociais */
 document.querySelectorAll(".js-socials").forEach(el => el.innerHTML = REDES.map(r =>
   `<a class="social ${r.classe}" href="${r.url}" target="_blank" rel="noopener" aria-label="Carlos no ${r.nome}" title="${r.nome}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${r.d}"/></svg></a>`).join(""));
+
+/* perguntas: abre e fecha deslizando a altura, com o texto aparecendo suave */
+document.querySelectorAll(".faq-list details").forEach(d => {
+  const sum = d.querySelector("summary"), body = d.querySelector("p");
+  const EASE = "cubic-bezier(.2,.7,.2,1)", MS = 420;
+  let anim = null;
+  sum.addEventListener("click", e => {
+    e.preventDefault();
+    const opening = !d.classList.contains("is-open");
+    d.classList.toggle("is-open", opening);
+    if (reduce){ d.open = opening; return; }
+    const from = d.offsetHeight;
+    if (anim) anim.cancel();
+    if (opening) d.open = true;
+    const to = opening ? d.scrollHeight : sum.offsetHeight;
+    anim = d.animate({height:[from+"px", to+"px"]}, {duration:MS, easing:EASE});
+    body.animate(opening
+      ? [{opacity:0, transform:"translateY(-8px)"}, {opacity:1, transform:"none"}]
+      : [{opacity:1, transform:"none"}, {opacity:0, transform:"translateY(-8px)"}],
+      {duration: opening ? MS : MS*.6, easing:EASE, fill: opening ? "none" : "forwards"});
+    anim.onfinish = () => {
+      if (!opening){ d.open = false; body.getAnimations().forEach(a => a.cancel()); }
+      anim = null;
+    };
+  });
+});
 
 /* WhatsApp */
 document.querySelectorAll(".js-wa").forEach(a=>{
