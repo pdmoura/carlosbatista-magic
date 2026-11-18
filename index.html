@@ -174,10 +174,19 @@ main,footer{position:relative;z-index:1}
 
 /* instagram: carrossel infinito */
 .ig .head{margin-bottom:40px}
-.marquee{overflow:hidden}
-.track{display:flex;gap:16px;width:max-content;animation:marquee 90s linear infinite}
-.marquee:hover .track{animation-play-state:paused}
-@keyframes marquee{to{transform:translateX(calc(-50% - 8px))}}
+.carousel{position:relative}
+.marquee{overflow:hidden;touch-action:pan-y;cursor:grab;user-select:none;-webkit-user-select:none}
+.marquee.dragging{cursor:grabbing}
+.marquee img,.marquee a{-webkit-user-drag:none}
+.track{display:flex;gap:16px;width:max-content;will-change:transform}
+.nav-arrow{position:absolute;top:50%;z-index:2;width:52px;height:52px;margin-top:-26px;border:0;border-radius:50%;cursor:pointer;
+  display:grid;place-items:center;background:rgba(10,10,10,.72);color:var(--fg);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  box-shadow:0 8px 24px -8px rgba(0,0,0,.8);transition:background .2s,transform .2s}
+.nav-arrow:hover{background:var(--green);transform:scale(1.06)}
+.nav-arrow svg{width:22px;height:22px}
+.nav-arrow.prev{left:max(16px,env(safe-area-inset-left,0px))}
+.nav-arrow.next{right:max(16px,env(safe-area-inset-right,0px))}
+@media (max-width:640px){.nav-arrow{width:44px;height:44px;margin-top:-22px}.nav-arrow svg{width:18px;height:18px}}
 .reel{position:relative;display:block;flex:0 0 auto;width:clamp(200px,22vw,290px);aspect-ratio:4/5;text-decoration:none;border-radius:14px;overflow:hidden;background:var(--surface)}
 .reel img{width:100%;height:100%;object-fit:cover;transition:transform .5s}
 .reel:hover img{transform:scale(1.05)}
@@ -274,7 +283,6 @@ footer a{text-decoration:none;color:var(--fg)}
 
 @media (prefers-reduced-motion:reduce){
   .rain{display:none}
-  .track{animation:none}.marquee{overflow-x:auto}
   .fan .pc{animation:none;transform:rotate(var(--a)) translateY(var(--y))}
   .pc-in,.intro,.intro-in{transition:none}
   .intro .mark{animation:none}
@@ -363,7 +371,7 @@ footer a{text-decoration:none;color:var(--fg)}
         <h2>Veja funcionando.</h2>
         <a class="btn btn-quiet" href="https://www.instagram.com/carlosbatista.magic/" target="_blank" rel="noopener">Seguir no Instagram</a>
       </div>
-      <div class="marquee"><div class="track js-reels"></div></div>
+      <div class="carousel"><button class="nav-arrow prev" type="button" aria-label="Vídeos anteriores"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div class="marquee"><div class="track js-reels"></div></div><button class="nav-arrow next" type="button" aria-label="Próximos vídeos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button></div>
     </section>
   </main>
   <footer>
@@ -443,7 +451,7 @@ footer a{text-decoration:none;color:var(--fg)}
         <h2>Reações de verdade.</h2>
         <p>Desconhecidos na rua, no parque, no escritório. Toque para assistir.</p>
       </div>
-      <div class="marquee"><div class="track js-reels"></div></div>
+      <div class="carousel"><button class="nav-arrow prev" type="button" aria-label="Vídeos anteriores"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div class="marquee"><div class="track js-reels"></div></div><button class="nav-arrow next" type="button" aria-label="Próximos vídeos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button></div>
     </section>
 
   </main>
@@ -475,18 +483,25 @@ const MAGICAS = [
 ];
 const REELS = [
   { id:"DaogRw2sDrh", img:"assets/reel-1.webp",  views:"2,2 mi",   legenda:"Olha a carinha dela" },
-  { id:"DeAXenONQ95", img:"assets/reel-5.webp",  views:"1,2 mi",   legenda:"Mágica no escritório" },
-  { id:"DdZshMgtGNu", img:"assets/reel-3.webp",  views:"746 mil",  legenda:"Qual é a brisa disso?" },
+  { id:"Dfp6qaetVaQ", img:"assets/reel-16.webp", views:"17 mil",   legenda:"Casal no parque" },
+  { id:"DeAXenONQ95", img:"assets/reel-5.webp",  views:"1,3 mi",   legenda:"Mágica no escritório" },
+  { id:"De2c2s6N2fl", img:"assets/reel-17.webp", views:"21,6 mil", legenda:"Reação dos amigos" },
+  { id:"DdZshMgtGNu", img:"assets/reel-3.webp",  views:"833 mil",  legenda:"Qual é a brisa disso?" },
   { id:"DdUtLJxtZuo", img:"assets/reel-9.webp",  views:"31,7 mil", legenda:"Mágica no parque" },
-  { id:"DfQfm1tt5aq", img:"assets/reel-4.webp",  views:"26,1 mil", legenda:"Nem eu esperava essa reação" },
+  { id:"DfS-16zt42n", img:"assets/reel-15.webp", views:"28,4 mil", legenda:"Ela não esperava" },
+  { id:"DfQfm1tt5aq", img:"assets/reel-4.webp",  views:"38,3 mil", legenda:"Nem eu esperava essa reação" },
+  { id:"Dcw_6S5tn55", img:"assets/reel-2.webp",  views:"1,6 mi",   legenda:"Levei um não… mas olha" },
+  { id:"DexfhU8NmmH", img:"assets/reel-18.webp", views:"25,2 mil", legenda:"Carta no banco do parque" },
   { id:"DdcrIVaN8Bb", img:"assets/reel-7.webp",  views:"48,8 mil", legenda:"Reação com a carta" },
-  { id:"Dcw_6S5tn55", img:"assets/reel-2.webp",  views:"1,4 mi",   legenda:"Levei um não… mas olha" },
-  { id:"DeZFm6aNBQs", img:"assets/reel-6.webp",  views:"799 mil",  legenda:"Reação na rua" },
+  { id:"Dft5-1dtbBS", img:"assets/reel-14.webp", views:"28 mil",   legenda:"Mágica no piquenique" },
+  { id:"DeZFm6aNBQs", img:"assets/reel-6.webp",  views:"911 mil",  legenda:"Reação na rua" },
+  { id:"DesRN_RtOGH", img:"assets/reel-19.webp", views:"18,5 mil", legenda:"Risada no fim da tarde" },
   { id:"DdzeSJttEoP", img:"assets/reel-10.webp", views:"24,9 mil", legenda:"Carta no piquenique" },
-  { id:"DfNi4VCtvil", img:"assets/reel-8.webp",  views:"36,6 mil", legenda:"Alvo avistado" },
-  { id:"Dd7dOR3NfvI", img:"assets/reel-11.webp", views:"24,1 mil", legenda:"Dupla no banco" },
-  { id:"DfDbDaBtiqY", img:"assets/reel-12.webp", views:"23,1 mil", legenda:"Ela não acreditou" },
-  { id:"DeLAVQatUXi", img:"assets/reel-13.webp", views:"21,4 mil", legenda:"Carta trocada" }
+  { id:"DfNi4VCtvil", img:"assets/reel-8.webp",  views:"40,1 mil", legenda:"Alvo avistado" },
+  { id:"Dd2MJzMuCQz", img:"assets/reel-20.webp", views:"22,1 mil", legenda:"Mágica na praça" },
+  { id:"Dd7dOR3NfvI", img:"assets/reel-11.webp", views:"24,9 mil", legenda:"Dupla no banco" },
+  { id:"DfDbDaBtiqY", img:"assets/reel-12.webp", views:"30,9 mil", legenda:"Ela não acreditou" },
+  { id:"DeLAVQatUXi", img:"assets/reel-13.webp", views:"22,2 mil", legenda:"Carta trocada" }
 ];
 /* ====================== */
 
@@ -527,11 +542,76 @@ const rain = document.getElementById("rain");
 /* instagram: duas cópias da lista fazem o loop sem emenda */
 const reelHTML = (r,hidden) => `
   <a class="reel" href="https://www.instagram.com/reel/${r.id}/" target="_blank" rel="noopener" ${hidden?'aria-hidden="true" tabindex="-1"':`aria-label="${r.legenda}, ${r.views} visualizações"`}>
-    <img src="${r.img}" alt="" width="354" height="443" loading="lazy">
+    <img src="${r.img}" alt="" width="354" height="443" loading="lazy" draggable="false">
     <span class="play"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
     <span class="views"><b>${r.views}</b>views</span>
   </a>`;
 document.querySelectorAll(".js-reels").forEach(t=>t.innerHTML = REELS.map(r=>reelHTML(r,false)).join("") + REELS.map(r=>reelHTML(r,true)).join(""));
+
+/* carrossel: anda sozinho, dá para arrastar com o dedo ou o mouse e usar as setas */
+function carousel(root){
+  const box = root.querySelector(".marquee"), track = root.querySelector(".track");
+  const AUTO = 38;                     /* px por segundo andando sozinho */
+  let x = 0, period = 0, v = 0, hold = 0, hover = false;
+  let drag = null, tween = null, last = performance.now();
+  const measure = () => { period = (track.scrollWidth + 16) / 2; };
+  const step = () => { const a = track.querySelector(".reel"); return a ? a.offsetWidth + 16 : 300; };
+  new ResizeObserver(measure).observe(track);
+  function frame(t){
+    const dt = Math.min((t - last) / 1000, .05); last = t;
+    if (period > 0){
+      if (tween){
+        const k = Math.min((t - tween.t0) / tween.ms, 1), e = 1 - Math.pow(1 - k, 3);
+        x = tween.from + (tween.to - tween.from) * e;
+        if (k === 1) tween = null;
+      } else if (!drag){
+        x += v * dt; v *= Math.pow(.004, dt);          /* inércia depois de soltar */
+        if (Math.abs(v) < 4) v = 0;
+        if (!reduce && !hover && t > hold) x += AUTO * dt;
+      }
+      const wrapped = ((x % period) + period) % period;
+      if (tween){ const d = wrapped - x; tween.from += d; tween.to += d; }
+      x = wrapped;
+      track.style.transform = `translate3d(${-x}px,0,0)`;
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+  const pause = ms => { hold = performance.now() + ms; };
+  root.querySelector(".prev").addEventListener("click", () => { v = 0; tween = {from:x, to:x - step(), t0:performance.now(), ms:500}; pause(4000); });
+  root.querySelector(".next").addEventListener("click", () => { v = 0; tween = {from:x, to:x + step(), t0:performance.now(), ms:500}; pause(4000); });
+  box.addEventListener("pointerenter", e => { if (e.pointerType === "mouse") hover = true; });
+  box.addEventListener("pointerleave", e => { if (e.pointerType === "mouse") hover = false; });
+  box.addEventListener("pointerdown", e => {
+    if (e.button !== 0) return;
+    drag = {id:e.pointerId, x:e.clientX, y:e.clientY, t:performance.now(), moved:0, captured:false};
+    tween = null; v = 0; root.dataset.dragged = "";
+  });
+  box.addEventListener("pointermove", e => {
+    if (!drag || e.pointerId !== drag.id) return;
+    const dx = e.clientX - drag.x, now = performance.now();
+    if (!drag.captured){
+      if (Math.abs(e.clientY - drag.y) > Math.abs(dx) && Math.abs(e.clientY - drag.y) > 8){ drag = null; return; } /* rolagem vertical */
+      if (Math.abs(dx) < 6) return;
+      drag.captured = true; box.setPointerCapture(e.pointerId); box.classList.add("dragging");
+    }
+    x -= dx; drag.moved += Math.abs(dx);
+    v = -dx / Math.max((now - drag.t) / 1000, .008);
+    drag.x = e.clientX; drag.t = now;
+  });
+  const end = e => {
+    if (!drag || e.pointerId !== drag.id) return;
+    if (performance.now() - drag.t > 80) v = 0;     /* parou antes de soltar: sem inércia */
+    box.classList.remove("dragging");
+    root.dataset.dragged = drag.moved > 6 ? "1" : "";
+    drag = null; pause(2500);
+  };
+  box.addEventListener("pointerup", end);
+  box.addEventListener("pointercancel", end);
+  /* um arrasto não deve abrir o vídeo */
+  box.addEventListener("click", e => { if (root.dataset.dragged){ e.preventDefault(); e.stopPropagation(); root.dataset.dragged = ""; } }, true);
+}
+document.querySelectorAll(".carousel").forEach(carousel);
 
 /* mágicas */
 function visual(m){
